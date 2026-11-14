@@ -24,10 +24,13 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 dependencies = [
-    "PyQt6>=6.6.0",
-    "Pillow>=10.0.0",
+    "Flask>=3.1,<4",
+    "rembg[cpu]==2.0.67",
+    "mediapipe==0.10.32",
+    "gunicorn>=23,<28; sys_platform != 'win32'",
+    "Pillow>=11.0.0",
     "numpy>=1.24.0",
-    "opencv-python>=4.8.0",
+    "opencv-python-headless>=4.10,<5",
     "fonttools>=4.40.0",
 ]
 
@@ -56,6 +59,9 @@ include = ["photo_retouch*"]
 
 [tool.setuptools.package-dir]
 "" = "src"
+
+[tool.setuptools.package-data]
+photo_retouch = ["templates/*.html", "static/*.css", "static/*.js", "static/*.png"]
 
 [tool.pytest.ini_options]
 qt_api = "pyqt6"

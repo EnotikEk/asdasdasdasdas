@@ -1,4 +1,4 @@
-"""
+﻿"""
 Image processing engine for real-time adjustments and compositing.
 """
 import logging
@@ -76,6 +76,7 @@ class ImageProcessor:
 
         # Sharpness (Unsharp Mask)
         if adj.sharpness > 0:
+            alpha = result.getchannel("A") if result.mode == "RGBA" else None
             # Convert to OpenCV for better unsharp mask
             cv_image = np.array(result)
             if len(cv_image.shape) == 3:
@@ -90,6 +91,8 @@ class ImageProcessor:
             if len(cv_image.shape) == 3:
                 cv_image = cv2.cvtColor(cv_image, cv2.COLOR_RGB2RGBA)
             result = Image.fromarray(cv_image)
+            if alpha is not None:
+                result.putalpha(alpha)
 
         # Vignette
         if adj.vignette > 0:
@@ -166,7 +169,7 @@ class ImageProcessor:
             result = Image.new("RGBA", canvas_size, (0, 0, 0, 0))
             x = (canvas_size[0] - image.width) // 2
             y = (canvas_size[1] - image.height) // 2
-            result.paste(image, (x, y), image if image.mode == "RGBA" else None)
+            result.paste(image, (x, y))
             return result
         else:
             return image.resize(canvas_size, Image.Resampling.LANCZOS)
@@ -198,7 +201,7 @@ class ImageProcessor:
         paste_x = x - result.width // 2
         paste_y = y - result.height // 2
 
-        canvas.paste(result, (paste_x, paste_y), result if result.mode == "RGBA" else None)
+        canvas.paste(result, (paste_x, paste_y))
         return canvas
 
     @staticmethod
@@ -382,15 +385,15 @@ class TextRenderer:
                 font = ImageFont.truetype(font_path, overlay.style.font_size)
             else:
                 # Try system fonts
-                font = ImageFont.load_default()
+                font = ImageFont.load_default(size=overlay.style.font_size)
                 # Try to get a better default
                 try:
-                    font = ImageFont.truetype("arial.ttf", overlay.style.font_size)
+                    font = ImageFont.truetype("DejaVuSans.ttf", overlay.style.font_size)
                 except:
                     pass
         except Exception as e:
             logger.warning(f"Font load failed: {e}")
-            font = ImageFont.load_default()
+            font = ImageFont.load_default(size=overlay.style.font_size)
 
         # Calculate text position (center of the position point)
         bbox = draw.textbbox((0, 0), overlay.content, font=font)
@@ -408,7 +411,7 @@ class TextRenderer:
             # Create shadow by drawing multiple times with blur
             for dx in range(-overlay.style.shadow_blur, overlay.style.shadow_blur + 1):
                 for dy in range(-overlay.style.shadow_blur, overlay.style.shadow_blur + 1):
-                    alpha = max(0, 255 - (abs(dx) + abs(dy)) * 255 // overlay.style.shadow_blur)
+                    alpha = max(0, 255 - (abs(dx) + abs(dy)) * 255 // max(1, overlay.style.shadow_blur))
                     if alpha > 0:
                         draw.text((shadow_x + dx, shadow_y + dy), overlay.content,
                                   font=font, fill=overlay.style.shadow_color + f"{alpha:02x}")

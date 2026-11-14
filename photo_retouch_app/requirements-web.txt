@@ -1,0 +1,8 @@
+Flask>=3.1,<4
+gunicorn>=23,<28
+Pillow>=11,<13
+numpy>=2,<3
+opencv-python-headless>=4.10,<5
+fonttools>=4.40,<5
+rembg[cpu]==2.0.67
+mediapipe==0.10.32

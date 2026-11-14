@@ -1,0 +1,7 @@
+.git
+.env
+.env.*
+**/__pycache__
+**/*.egg-info
+**/.venv
+photo_retouch_app/PhotoRetouchProject
